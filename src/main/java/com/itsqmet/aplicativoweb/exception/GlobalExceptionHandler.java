@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +54,14 @@ public class GlobalExceptionHandler {
     //supletorias, revisión/apelación, socioemocional, NEE, promoción, boletas
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ResponseEntity<String> manejarRecursoNoEncontrado(RecursoNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    //BaseCrudController (Roles, Docentes, Evaluaciones-Destreza, etc.) lanza
+    //NoSuchElementException al no encontrar un registro por id; sin este
+    //manejador caía en el catch-all genérico y devolvía 500 en vez de 404.
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> manejarNoEncontrado(NoSuchElementException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 

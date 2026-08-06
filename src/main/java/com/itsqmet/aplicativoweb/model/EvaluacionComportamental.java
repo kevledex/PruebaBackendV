@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
  * NUEVO. Cap. IX (Art. 26-28) del Acuerdo Ministerial: descripción
  * cualitativa del comportamiento, resultado de la evaluación socioemocional.
@@ -35,9 +33,6 @@ public class EvaluacionComportamental {
     @NotNull(message = "El docente es obligatorio")
     @ManyToOne(optional = false)
     private Docente docente;
-
-    @ManyToMany
-    private List<HabilidadSocioemocional> habilidadesObservadas;
 
     @NotBlank(message = "La descripción cualitativa es obligatoria")
     @Column(length = 500)

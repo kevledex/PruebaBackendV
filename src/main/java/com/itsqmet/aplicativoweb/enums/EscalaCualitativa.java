@@ -16,6 +16,7 @@ import java.math.BigDecimal;
  * llega hasta 7mo EGB (Subnivel Media), el campo se renombra de
  * "categoriaMediaBachillerato" a "categoriaSubnivelMedia".
  */
+
 public enum EscalaCualitativa {
     A_MAS(new BigDecimal("10"), "A+", "Destreza o aprendizaje alcanzado", "Alcanza los aprendizajes"),
     A_MENOS(new BigDecimal("9"), "A-", "Destreza o aprendizaje alcanzado", "Alcanza los aprendizajes"),

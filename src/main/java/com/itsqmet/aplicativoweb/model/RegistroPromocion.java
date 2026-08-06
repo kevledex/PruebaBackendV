@@ -49,16 +49,12 @@ public class RegistroPromocion {
     private LocalDate fechaResolucion;
 
     // Documentación obligatoria para EXCEPCIONAL_CON_CONDICIONES (Subnivel Media)
-    @ManyToOne
-    private RefuerzoPedagogico planRefuerzo;
     private boolean acuerdoConsensuadoFirmado;
     private LocalDate fechaAcuerdoConsensuado;
     @Column(length = 2000)
     private String informeJuntaDocentes;
 
     // Documentación para repitencia excepcional (Preparatoria/Elemental)
-    @ManyToOne
-    private EvaluacionPsicopedagogica evaluacionPsicopedagogicaSoporte;
     private boolean solicitudRepresentanteRecibida;
     private boolean yaAplicoRepitenciaExcepcionalAntes; // valida la regla "por única vez" del Art. 23
 

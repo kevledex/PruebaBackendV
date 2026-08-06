@@ -17,18 +17,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
- * AJUSTADO: se agregan las reglas de acceso para todos los endpoints nuevos
- * derivados del análisis MINEDUC (estructura académica, alertas, refuerzos,
- * mejoras, supletorias, revisión/apelación, socioemocional, NEE, promoción
- * y boletas). El resto de rutas no listadas explícitamente sigue cubierto
- * por el ".anyRequest().authenticated()" original, así que ningún endpoint
- * nuevo queda abierto sin autenticación.
- *
  * NOTA: "/api/mis-representados/**" ya estaba reservado para
  * ROLE_REPRESENTANTE en el archivo original, pero no existe (todavía) un
  * controlador para esa ruta ni un vínculo Usuario<->Representante en el
  * modelo de datos -- se deja la regla tal cual, pendiente de esa decisión
- * de diseño (ver nota en el listado final de archivos).
+ * de diseño.
  */
 @Configuration
 @EnableWebSecurity //Enciende la seguridad web en toda la aplicación
@@ -107,7 +100,6 @@ public class SecurityConfig {
 
                         // --- Estructura académica (Art. 4 del Acuerdo) ---
                         .requestMatchers("/api/anios-lectivos/**").hasRole("ADMIN")
-                        .requestMatchers("/api/periodos/**").hasAnyRole("ADMIN", "DOCENTE")
                         .requestMatchers("/api/materias-curso/**").hasAnyRole("ADMIN", "DOCENTE")
                         .requestMatchers("/api/materias/**").hasAnyRole("ADMIN", "DOCENTE")
 
@@ -116,32 +108,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/notas/**").hasAnyRole("ADMIN", "DOCENTE")
                         .requestMatchers("/api/evaluaciones-destreza/**").hasAnyRole("ADMIN", "DOCENTE")
 
-                        // --- Alerta temprana y refuerzo pedagógico (Art. 9, 3.j) ---
-                        .requestMatchers("/api/alertas/**").hasAnyRole("ADMIN", "DOCENTE")
-                        .requestMatchers("/api/refuerzos/**").hasAnyRole("ADMIN", "DOCENTE")
-
-                        // --- Mejora de calificaciones y supletoria (Art. 10-12, 21-22) ---
-                        .requestMatchers("/api/alumnos/*/mejoras/**").hasAnyRole("ADMIN", "DOCENTE")
-                        .requestMatchers("/api/alumnos/*/supletorias/**").hasAnyRole("ADMIN", "DOCENTE")
-
-                        // --- Revisión y apelación de calificaciones (Art. 40 RGLOEI) ---
-                        .requestMatchers("/api/solicitudes-revision/**").hasAnyRole("ADMIN", "DOCENTE", "REPRESENTANTE")
-
-                        // --- Evaluación socioemocional (Cap. IX) y NEE (Cap. X) ---
-                        .requestMatchers("/api/habilidades-socioemocionales/**").hasAnyRole("ADMIN", "DOCENTE")
-                        .requestMatchers("/api/alumnos/*/evaluacion-diagnostica-socioemocional/**").hasAnyRole("ADMIN", "DOCENTE")
-                        .requestMatchers("/api/alumnos/*/evaluacion-comportamental/**").hasAnyRole("ADMIN", "DOCENTE")
-                        .requestMatchers("/api/alumnos/*/evaluaciones-psicopedagogicas/**").hasAnyRole("ADMIN", "DOCENTE")
-
-                        // --- Promoción y repitencia (Cap. VI y VIII) ---
-                        .requestMatchers("/api/promociones/**").hasRole("ADMIN")
-
-                        // --- Informes de aprendizaje / boletas (Art. 4.e, 37) ---
+                        // --- Informes de progreso (usado por la vista de Padres) ---
                         .requestMatchers("/api/alumnos/*/informes/**").hasAnyRole("ADMIN", "DOCENTE", "REPRESENTANTE")
-                        .requestMatchers("/api/cursos/*/informes/**").hasAnyRole("ADMIN", "DOCENTE")
-
-                        // --- Dashboard de reportes ---
-                        .requestMatchers("/api/reportes/**").hasRole("ADMIN")
 
                         // Cualquier otra ruta no definida requiere iniciar sesión
                         .anyRequest().authenticated()
