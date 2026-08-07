@@ -4,7 +4,6 @@ import com.itsqmet.aplicativoweb.model.Alumno;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * AJUSTADO: se agrega "findByCursoId", necesario ahora que Alumno se
@@ -12,7 +11,6 @@ import java.util.Optional;
  * libre) y para generar boletas/informes por curso completo.
  */
 public interface AlumnoRepository extends JpaRepository < Alumno,Long>{
-    Optional<Alumno> findByCedula(String cedula);
     List<Alumno> findByCursoId(Long cursoId);
     List<Alumno> findByRepresentanteRegistro_Id(Long representanteId);
 }
