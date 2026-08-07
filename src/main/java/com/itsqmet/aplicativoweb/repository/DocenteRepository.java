@@ -6,5 +6,6 @@ import java.util.Optional;
 
 public interface DocenteRepository extends JpaRepository <Docente,Long>{
     Optional<Docente> findByCorreo(String correo);
+    Optional<Docente> findByUsuario_Id(Long usuarioId);
     long countByRolId(Long rolId);
 }

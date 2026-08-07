@@ -30,13 +30,32 @@ public final class BoletaDtos {
             String escala
     ) {}
 
+    public record LineaActividadDto(
+            Long actividadId,
+            String nombre,
+            BigDecimal calificacion // null si el alumno todavía no tiene nota ahí
+    ) {}
+
+    // Desglose por materia con CADA nota individual del trimestre (no solo el
+    // promedio) -- lo usa el PDF de Elemental/Media para mostrar la boleta
+    // completa, igual que ya se ve en la pantalla de Notas.
+    public record LineaMateriaDetalleDto(
+            Long materiaCursoId,
+            String nombreMateria,
+            List<LineaActividadDto> actividades,
+            BigDecimal promedio,
+            String equivalenciaCualitativa
+    ) {}
+
     public record InformeProgresoDto(
             Long alumnoId,
             String nombreCompleto,
             Long periodoAcademicoId,
             List<LineaMateriaDto> materias,
             List<LineaDestrezaDto> destrezas, // solo para Inicial/Preparatoria
-            String evaluacionComportamental
+            String evaluacionComportamental,
+            List<LineaMateriaDetalleDto> materiasDetalle, // solo para Elemental/Media
+            BigDecimal promedioFinal // promedio de "materias"; null para Inicial/Preparatoria
     ) {}
 
     public record LineaMateriaAnualDto(

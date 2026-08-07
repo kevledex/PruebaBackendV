@@ -26,8 +26,15 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<Usuario> listar() {
-        return usuarioRepository.findAll();
+    public List<Usuario> listar(String rol) {
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        if (rol == null || rol.isBlank()) {
+            return usuarios;
+        }
+        return usuarios.stream()
+                .filter(usuario -> usuario.getRol() != null
+                        && rol.equalsIgnoreCase(usuario.getRol().getNombre()))
+                .toList();
     }
 
     public Usuario obtenerPorId(Long id) {

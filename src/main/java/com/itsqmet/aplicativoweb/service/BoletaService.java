@@ -29,32 +29,32 @@ public class BoletaService {
 
     private final AlumnoRepository alumnoRepository;
     private final MateriaCursoRepository materiaCursoRepository;
-    private final PromedioMateriaPeriodoRepository promedioMateriaPeriodoRepository;
     private final EvaluacionDestrezaRepository evaluacionDestrezaRepository;
     private final EvaluacionComportamentalRepository evaluacionComportamentalRepository;
     private final PeriodoAcademicoRepository periodoAcademicoRepository;
     private final PromedioService promedioService;
     private final RegistroPromocionRepository registroPromocionRepository;
     private final NotaRepository notaRepository;
+    private final ActividadRepository actividadRepository;
 
     public BoletaService(AlumnoRepository alumnoRepository,
                           MateriaCursoRepository materiaCursoRepository,
-                          PromedioMateriaPeriodoRepository promedioMateriaPeriodoRepository,
                           EvaluacionDestrezaRepository evaluacionDestrezaRepository,
                           EvaluacionComportamentalRepository evaluacionComportamentalRepository,
                           PeriodoAcademicoRepository periodoAcademicoRepository,
                           PromedioService promedioService,
                           RegistroPromocionRepository registroPromocionRepository,
-                          NotaRepository notaRepository) {
+                          NotaRepository notaRepository,
+                          ActividadRepository actividadRepository) {
         this.alumnoRepository = alumnoRepository;
         this.materiaCursoRepository = materiaCursoRepository;
-        this.promedioMateriaPeriodoRepository = promedioMateriaPeriodoRepository;
         this.evaluacionDestrezaRepository = evaluacionDestrezaRepository;
         this.evaluacionComportamentalRepository = evaluacionComportamentalRepository;
         this.periodoAcademicoRepository = periodoAcademicoRepository;
         this.promedioService = promedioService;
         this.registroPromocionRepository = registroPromocionRepository;
         this.notaRepository = notaRepository;
+        this.actividadRepository = actividadRepository;
     }
 
     public BoletaDtos.InformeProgresoDto generarInformeProgreso(Long alumnoId, Long periodoAcademicoId) {
@@ -64,6 +64,8 @@ public class BoletaService {
 
         List<BoletaDtos.LineaMateriaDto> materias = new ArrayList<>();
         List<BoletaDtos.LineaDestrezaDto> destrezas = new ArrayList<>();
+        List<BoletaDtos.LineaMateriaDetalleDto> materiasDetalle = new ArrayList<>();
+        BigDecimal promedioFinal = null;
 
         if (nivel == NivelEducativo.INICIAL || nivel == NivelEducativo.PREPARATORIA) {
             destrezas = evaluacionDestrezaRepository.findByAlumnoIdAndPeriodoAcademicoId(alumnoId, periodoAcademicoId).stream()
@@ -71,14 +73,49 @@ public class BoletaService {
                             evaluacion.getAmbitoAprendizaje(), evaluacion.getDestreza(), evaluacion.getEscala().getCodigo()))
                     .toList();
         } else {
+            // El promedio de cada materia se calcula (y cachea) al vuelo en vez de
+            // solo leerlo de promedio_materia_periodo: no existe ningún disparador
+            // automático que lo recalcule cuando se guarda una Nota (ni un
+            // endpoint manual para hacerlo), así que esa tabla puede estar vacía
+            // aunque las notas ya existan -- y sin este cálculo el reporte de
+            // Elemental/Media saldría siempre en blanco.
             for (MateriaCurso materiaCurso : materiaCursoRepository.findByCursoId(alumno.getCurso().getId())) {
-                promedioMateriaPeriodoRepository
-                        .findByAlumnoIdAndMateriaCursoIdAndPeriodoAcademicoId(alumnoId, materiaCurso.getId(), periodoAcademicoId)
-                        .ifPresent(promedio -> materias.add(new BoletaDtos.LineaMateriaDto(
-                                materiaCurso.getId(),
-                                materiaCurso.getMateria().getNombre(),
-                                promedio.getPromedioFinal(),
-                                promedio.getEquivalenciaCualitativa() != null ? promedio.getEquivalenciaCualitativa().getCodigo() : null)));
+                PromedioMateriaPeriodo promedio;
+                try {
+                    promedio = promedioService.calcularPromedioPeriodo(alumnoId, materiaCurso.getId(), periodoAcademicoId);
+                } catch (RecursoNoEncontradoException ex) {
+                    continue; // el alumno todavía no tiene notas en esta materia/periodo
+                }
+                if (promedio != null) {
+                    String equivalencia = promedio.getEquivalenciaCualitativa() != null
+                            ? promedio.getEquivalenciaCualitativa().getCodigo() : null;
+                    materias.add(new BoletaDtos.LineaMateriaDto(
+                            materiaCurso.getId(), materiaCurso.getMateria().getNombre(),
+                            promedio.getPromedioFinal(), equivalencia));
+
+                    // Detalle nota por nota (una columna por actividad del trimestre),
+                    // para que la boleta de Elemental/Media muestre todo, no solo el
+                    // promedio -- misma información que ya arma Notas.tsx en pantalla.
+                    List<BoletaDtos.LineaActividadDto> actividades = actividadRepository
+                            .findByMateriaCursoIdAndPeriodoAcademicoId(materiaCurso.getId(), periodoAcademicoId).stream()
+                            .map(actividad -> new BoletaDtos.LineaActividadDto(
+                                    actividad.getId(), actividad.getNombre(),
+                                    notaRepository.findByAlumnoIdAndActividadId(alumnoId, actividad.getId())
+                                            .map(Nota::getCalificacion).orElse(null)))
+                            .toList();
+                    materiasDetalle.add(new BoletaDtos.LineaMateriaDetalleDto(
+                            materiaCurso.getId(), materiaCurso.getMateria().getNombre(),
+                            actividades, promedio.getPromedioFinal(), equivalencia));
+                }
+            }
+
+            if (!materias.isEmpty()) {
+                BigDecimal suma = materias.stream()
+                        .map(BoletaDtos.LineaMateriaDto::promedio)
+                        .filter(Objects::nonNull)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                promedioFinal = NotaService.truncar2Decimales(
+                        suma.divide(new BigDecimal(materias.size()), 10, RoundingMode.DOWN));
             }
         }
 
@@ -89,7 +126,8 @@ public class BoletaService {
 
         return new BoletaDtos.InformeProgresoDto(
                 alumnoId, alumno.getNombres() + " " + alumno.getApellidos(),
-                periodoAcademicoId, materias, destrezas, comportamiento);
+                periodoAcademicoId, materias, destrezas, comportamiento,
+                materiasDetalle, promedioFinal);
     }
 
     public BoletaDtos.InformeFinalAnualDto generarInformeFinalAnual(Long alumnoId, Long anioLectivoId) {
@@ -102,11 +140,21 @@ public class BoletaService {
 
         List<BoletaDtos.LineaMateriaAnualDto> materias = new ArrayList<>();
         for (MateriaCurso materiaCurso : ofertas) {
+            // Igual que en generarInformeProgreso: se calcula (y cachea) cada
+            // trimestre al vuelo en vez de solo leer promedio_materia_periodo,
+            // que puede estar vacío porque nada lo recalcula automáticamente al
+            // guardar una Nota. calcularPromedioAnual() de más abajo sí lee ese
+            // caché, así que este cálculo debe ir ANTES para dejarlo poblado.
             List<BigDecimal> promediosPorPeriodo = periodos.stream()
-                    .map(periodo -> promedioMateriaPeriodoRepository
-                            .findByAlumnoIdAndMateriaCursoIdAndPeriodoAcademicoId(alumnoId, materiaCurso.getId(), periodo.getId())
-                            .map(PromedioMateriaPeriodo::getPromedioFinal)
-                            .orElse(null))
+                    .map(periodo -> {
+                        try {
+                            PromedioMateriaPeriodo promedio = promedioService.calcularPromedioPeriodo(
+                                    alumnoId, materiaCurso.getId(), periodo.getId());
+                            return promedio != null ? promedio.getPromedioFinal() : null;
+                        } catch (RecursoNoEncontradoException ex) {
+                            return null; // sin notas todavía en ese periodo
+                        }
+                    })
                     .toList();
 
             // Convención: la evaluación supletoria se registra sobre el último

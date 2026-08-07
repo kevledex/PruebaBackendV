@@ -1,4 +1,5 @@
 package com.itsqmet.aplicativoweb.model;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -23,8 +24,14 @@ public class Usuario {
     @Column(unique = true, length = 20)
     private String usuario;
 
+    @Pattern(regexp = "\\d{10}", message = "La cedula solo debe tener numeros")
+    @Size(min = 10, max = 10, message = "La cedula debe tener 10 digitos")
+    @Column(unique = true, length = 10)
+    private String cedula;
+
     @NotBlank(message = "El campo contraseña es obligatorio")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonAlias("password")
     private String contrasenia;
 
     @NotBlank (message = "El campo estado es obligatorio")

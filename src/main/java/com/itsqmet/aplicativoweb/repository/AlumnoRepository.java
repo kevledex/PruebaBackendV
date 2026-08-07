@@ -14,4 +14,5 @@ import java.util.Optional;
 public interface AlumnoRepository extends JpaRepository < Alumno,Long>{
     Optional<Alumno> findByCedula(String cedula);
     List<Alumno> findByCursoId(Long cursoId);
+    List<Alumno> findByRepresentanteRegistro_Id(Long representanteId);
 }

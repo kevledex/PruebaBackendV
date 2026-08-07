@@ -43,8 +43,8 @@ public class AlumnoService {
 
     // READ - listar todos
 
-    public List<Alumno> obtenerTodo() {
-        return alumnoRepository.findAll();
+    public List<Alumno> obtenerTodo(Long cursoId) {
+        return cursoId != null ? alumnoRepository.findByCursoId(cursoId) : alumnoRepository.findAll();
     }
 
     // READ - buscar por id con excepción personalizada

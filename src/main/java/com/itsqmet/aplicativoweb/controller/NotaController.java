@@ -16,10 +16,11 @@ public class NotaController {
     @Autowired
     private NotaService notaService;
 
-    // GET: Obtener todas las notas
+    // GET: Obtener todas las notas (opcionalmente filtradas por materia-curso y periodo)
     @GetMapping
-    public ResponseEntity<List<Nota>> obtenerTodas() {
-        List<Nota> notas = notaService.obtenerTodo();
+    public ResponseEntity<List<Nota>> obtenerTodas(@RequestParam(required = false) Long materiaCursoId,
+                                                     @RequestParam(required = false) Long periodoAcademicoId) {
+        List<Nota> notas = notaService.obtenerTodo(materiaCursoId, periodoAcademicoId);
         return ResponseEntity.ok(notas);
     }
 

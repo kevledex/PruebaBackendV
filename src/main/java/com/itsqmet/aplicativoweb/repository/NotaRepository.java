@@ -22,6 +22,9 @@ public interface NotaRepository extends JpaRepository<Nota, Long> {
     List<Nota> findByAlumnoIdAndActividad_MateriaCursoIdAndActividad_PeriodoAcademicoId(
             Long alumnoId, Long materiaCursoId, Long periodoAcademicoId);
 
+    List<Nota> findByActividad_MateriaCursoIdAndActividad_PeriodoAcademicoId(
+            Long materiaCursoId, Long periodoAcademicoId);
+
     List<Nota> findByAlumnoIdAndActividad_MateriaCursoIdAndActividad_PeriodoAcademicoIdAndActividad_TipoEvaluacion(
             Long alumnoId, Long materiaCursoId, Long periodoAcademicoId, TipoEvaluacion tipoEvaluacion);
 

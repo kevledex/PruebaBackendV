@@ -30,7 +30,10 @@ public class NotaService {
     }
 
     //READ- listar notas
-    public List<Nota> obtenerTodo() {
+    public List<Nota> obtenerTodo(Long materiaCursoId, Long periodoAcademicoId) {
+        if (materiaCursoId != null && periodoAcademicoId != null) {
+            return notaRepository.findByActividad_MateriaCursoIdAndActividad_PeriodoAcademicoId(materiaCursoId, periodoAcademicoId);
+        }
         return notaRepository.findAll();
     }
 

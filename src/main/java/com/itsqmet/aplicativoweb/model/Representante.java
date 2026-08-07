@@ -1,4 +1,5 @@
 package com.itsqmet.aplicativoweb.model;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -63,6 +64,9 @@ public class Representante {
     @Size(min = 2, max = 50, message = "El curso debe tener entre 2 y 50 caracteres")
     private String curso;
 
-
+    @OneToOne
+    @JoinColumn(name = "usuario_id", unique = true)
+    @JsonIgnoreProperties({"rol"})
+    private Usuario usuario;
 
 }

@@ -65,4 +65,9 @@ public class Docente {
     @JsonIgnoreProperties({"permisos"})
     private Rol rol;
 
+    @OneToOne
+    @JoinColumn(name = "usuario_id", unique = true)
+    @JsonIgnoreProperties({"rol"})
+    private Usuario usuario;
+
 }

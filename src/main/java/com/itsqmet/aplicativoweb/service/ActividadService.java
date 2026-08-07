@@ -33,7 +33,10 @@ public class ActividadService {
         this.actividadRepository = actividadRepository;
     }
 
-    public List<Actividad> obtenerTodas(){
+    public List<Actividad> obtenerTodas(Long materiaCursoId, Long periodoAcademicoId){
+        if (materiaCursoId != null && periodoAcademicoId != null) {
+            return actividadRepository.findByMateriaCursoIdAndPeriodoAcademicoId(materiaCursoId, periodoAcademicoId);
+        }
         return actividadRepository.findAll();
     }
 
