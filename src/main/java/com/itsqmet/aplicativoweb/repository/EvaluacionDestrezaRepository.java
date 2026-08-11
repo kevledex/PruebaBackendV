@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface EvaluacionDestrezaRepository extends JpaRepository<EvaluacionDestreza, Long> {
     List<EvaluacionDestreza> findByAlumnoIdAndPeriodoAcademicoId(Long alumnoId, Long periodoAcademicoId);
-    List<EvaluacionDestreza> findByAlumnoId(Long alumnoId);
 }

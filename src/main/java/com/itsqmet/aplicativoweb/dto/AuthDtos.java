@@ -25,7 +25,9 @@ public final class AuthDtos {
             String usuario,
             Long rolId,
             String rolNombre,
-            Set<String> permisos
+            Set<String> permisos,
+            Long docenteId,
+            Long representanteId
     ) {}
 
     public record SessionResponse(
@@ -33,6 +35,8 @@ public final class AuthDtos {
             String usuario,
             Long rolId,
             String rolNombre,
-            Set<String> permisos
+            Set<String> permisos,
+            Long docenteId,
+            Long representanteId
     ) {}
 }

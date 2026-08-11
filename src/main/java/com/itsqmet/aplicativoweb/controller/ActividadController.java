@@ -26,8 +26,9 @@ public class ActividadController {
     }
 
     @GetMapping
-    public List<Actividad> listar() {
-        return actividadService.obtenerTodas();
+    public List<Actividad> listar(@RequestParam(required = false) Long materiaCursoId,
+                                   @RequestParam(required = false) Long periodoAcademicoId) {
+        return actividadService.obtenerTodas(materiaCursoId, periodoAcademicoId);
     }
 
     @GetMapping("/{id}")

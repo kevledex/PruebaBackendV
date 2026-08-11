@@ -1,12 +1,14 @@
 package com.itsqmet.aplicativoweb.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -87,6 +89,24 @@ public class GlobalExceptionHandler {
                 .map(violacion -> violacion.getPropertyPath() + ": " + violacion.getMessage())
                 .collect(Collectors.joining("; "));
         return ResponseEntity.badRequest().body(Map.of("error", mensaje.isBlank() ? "Datos inválidos" : mensaje));
+    }
+
+    //VIOLACION DE RESTRICCIONES DE BASE DE DATOS (ej: cedula/usuario duplicados,
+    //vincular dos veces el mismo usuario a un docente/representante)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> manejarIntegridadDatos(DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "El dato ingresado ya está en uso o entra en conflicto con un registro existente."));
+    }
+
+    //RESPONSESTATUSEXCEPTION (usada directamente por AuthService/ReporteController/etc
+    //para 401/403/400 puntuales): sin este manejador, al no ser más específico que
+    //"Exception", caía en el catch-all genérico y siempre devolvía 500 ignorando el
+    //código HTTP real que la excepción ya traía.
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, String>> manejarResponseStatusException(ResponseStatusException ex) {
+        String mensaje = ex.getReason() != null ? ex.getReason() : "Error en la solicitud";
+        return ResponseEntity.status(ex.getStatusCode()).body(Map.of("error", mensaje));
     }
 
     //JSON MAL FORMADO O CON TIPOS INCOMPATIBLES

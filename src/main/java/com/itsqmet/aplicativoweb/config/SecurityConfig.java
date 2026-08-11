@@ -86,17 +86,49 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/auth/**").permitAll()
 
+                        // Los trimestres de un curso los consulta también quien ve el
+                        // progreso de un alumno de ese curso (vista de Padres): docentes
+                        // y representantes, aunque no puedan administrar el curso en sí.
+                        .requestMatchers(HttpMethod.GET, "/api/cursos/*/periodos")
+                            .hasAnyRole("ADMIN", "DOCENTE", "REPRESENTANTE")
+
+                        // El docente necesita ver qué materias tiene su curso para poder
+                        // entrar notas (pantalla de Notas), aunque no administre el curso.
+                        .requestMatchers(HttpMethod.GET, "/api/cursos/*/materias")
+                            .hasAnyRole("ADMIN", "DOCENTE")
+
                         // Administrador puede gestionar cursos, docentes y representantes
                         .requestMatchers("/api/cursos/**").hasRole("ADMIN")
                         .requestMatchers("/api/docentes/**").hasRole("ADMIN")
                         .requestMatchers("/api/representantes/**").hasRole("ADMIN")
 
-                        // Administradores y docentes pueden tomar asistencias y ver alumnos
-                        .requestMatchers("/api/alumnos/**").hasAnyRole("ADMIN", "DOCENTE")
+                        // --- Informes de progreso (usado por la vista de Padres) ---
+                        // OJO: este matcher, más específico, debe ir ANTES que la regla
+                        // general de "/api/alumnos/**" (ADMIN/DOCENTE) de más abajo; si no,
+                        // Spring Security aplica siempre la primera regla que matchea la
+                        // ruta y REPRESENTANTE nunca llegaría a esta.
+                        .requestMatchers("/api/alumnos/*/informes/**").hasAnyRole("ADMIN", "DOCENTE", "REPRESENTANTE")
+
+                        // Módulo "Generar reporte" (boletas PDF): mismo motivo que arriba,
+                        // debe ir antes que la regla general de "/api/alumnos/**".
+                        .requestMatchers("/api/alumnos/*/reportes/**").hasAnyRole("ADMIN", "DOCENTE")
+
+                        // Administradores y docentes pueden ver/tomar asistencia y listar
+                        // alumnos (el docente necesita el listado de su curso para poder
+                        // calificar); solo el Admin puede crear/editar/borrar alumnos --
+                        // los docentes no deben poder registrar estudiantes.
+                        .requestMatchers(HttpMethod.GET, "/api/alumnos/**").hasAnyRole("ADMIN", "DOCENTE")
+                        .requestMatchers(HttpMethod.POST, "/api/alumnos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/alumnos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/alumnos/**").hasRole("ADMIN")
                         .requestMatchers("/api/asistencias/**").hasAnyRole("ADMIN", "DOCENTE")
 
                         // Los representantes solo ven información de sus estudiantes
                         .requestMatchers("/api/mis-representados/**").hasRole("REPRESENTANTE")
+
+                        // Cursos visibles para "Generar reporte": Admin ve todos, Docente
+                        // solo los suyos (filtrado dentro de MisCursosController)
+                        .requestMatchers("/api/mis-cursos/**").hasAnyRole("ADMIN", "DOCENTE")
 
                         // --- Estructura académica (Art. 4 del Acuerdo) ---
                         .requestMatchers("/api/anios-lectivos/**").hasRole("ADMIN")
@@ -107,9 +139,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/actividades/**").hasAnyRole("ADMIN", "DOCENTE")
                         .requestMatchers("/api/notas/**").hasAnyRole("ADMIN", "DOCENTE")
                         .requestMatchers("/api/evaluaciones-destreza/**").hasAnyRole("ADMIN", "DOCENTE")
-
-                        // --- Informes de progreso (usado por la vista de Padres) ---
-                        .requestMatchers("/api/alumnos/*/informes/**").hasAnyRole("ADMIN", "DOCENTE", "REPRESENTANTE")
 
                         // Cualquier otra ruta no definida requiere iniciar sesión
                         .anyRequest().authenticated()

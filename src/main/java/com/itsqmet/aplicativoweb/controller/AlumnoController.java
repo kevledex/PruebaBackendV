@@ -22,10 +22,10 @@ public class AlumnoController {
 
     @Autowired
     private AlumnoService alumnoService;
-    //GET: Obtener todos los alumnos
+    //GET: Obtener todos los alumnos (opcionalmente filtrados por curso)
     @GetMapping
-    public ResponseEntity<List<Alumno>> obtenerTodos() {
-        List<Alumno> alumnos = alumnoService.obtenerTodo();
+    public ResponseEntity<List<Alumno>> obtenerTodos(@RequestParam(required = false) Long cursoId) {
+        List<Alumno> alumnos = alumnoService.obtenerTodo(cursoId);
         return ResponseEntity.ok(alumnos);
     }
     //GET: Obtener alumno por ID

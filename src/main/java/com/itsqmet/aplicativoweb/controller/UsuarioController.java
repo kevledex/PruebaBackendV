@@ -16,8 +16,8 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public List<Usuario> listar(){
-        return usuarioService.listar();
+    public List<Usuario> listar(@RequestParam(required = false) String rol){
+        return usuarioService.listar(rol);
     }
 
     @PostMapping

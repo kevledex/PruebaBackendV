@@ -21,9 +21,9 @@ import java.time.LocalDate;
 /**
  * CORREGIDO/AJUSTADO:
  *  - BUG: el @UniqueConstraint ya referenciaba "actividad_id", pero la
- *    entidad no tenía ningún campo "actividad" (solo "materia"), y
- *    NotaRepository.findByActividadId(...) derivaba una consulta sobre esa
- *    propiedad inexistente -> Spring Data fallaba al arrancar con
+ *    entidad no tenía ningún campo "actividad" (solo "materia"), y una
+ *    consulta derivada de NotaRepository sobre esa propiedad inexistente
+ *    hacía que Spring Data fallara al arrancar con
  *    PropertyReferenceException. Se agrega la relación real a Actividad
  *    (de ahí se obtienen tipoEvaluacion, caracter y periodoAcademico; el
  *    campo "materia" se retira por redundante, se llega a él vía

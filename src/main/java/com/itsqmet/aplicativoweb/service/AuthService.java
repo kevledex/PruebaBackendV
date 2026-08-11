@@ -3,6 +3,8 @@ import com.itsqmet.aplicativoweb.dto.AuthDtos.LoginRequest;
 import com.itsqmet.aplicativoweb.dto.AuthDtos.LoginResponse;
 import com.itsqmet.aplicativoweb.dto.AuthDtos.SessionResponse;
 import com.itsqmet.aplicativoweb.model.Usuario;
+import com.itsqmet.aplicativoweb.repository.DocenteRepository;
+import com.itsqmet.aplicativoweb.repository.RepresentanteRepository;
 import com.itsqmet.aplicativoweb.repository.UsuarioRepository;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -30,10 +32,15 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final UsuarioRepository usuarios;
     private final PasswordEncoder encoder;
+    private final DocenteRepository docentes;
+    private final RepresentanteRepository representantes;
 
-    public AuthService(UsuarioRepository usuarios, PasswordEncoder encoder) {
+    public AuthService(UsuarioRepository usuarios, PasswordEncoder encoder,
+                        DocenteRepository docentes, RepresentanteRepository representantes) {
         this.usuarios = usuarios;
         this.encoder = encoder;
+        this.docentes = docentes;
+        this.representantes = representantes;
     }
 
     public ResultadoLogin autenticar(LoginRequest request) {
@@ -57,7 +64,9 @@ public class AuthService {
                 usuario.getUsuario(),
                 usuario.getRol().getId(),
                 usuario.getRol().getNombre(),
-                usuario.getRol().getPermisos());
+                usuario.getRol().getPermisos(),
+                docentes.findByUsuario_Id(usuario.getId()).map(d -> d.getId()).orElse(null),
+                representantes.findByUsuario_Id(usuario.getId()).map(r -> r.getId()).orElse(null));
         return new ResultadoLogin(autenticacion, respuesta);
     }
 
@@ -71,7 +80,9 @@ public class AuthService {
                 usuario.getUsuario(),
                 usuario.getRol().getId(),
                 usuario.getRol().getNombre(),
-                usuario.getRol().getPermisos());
+                usuario.getRol().getPermisos(),
+                docentes.findByUsuario_Id(usuario.getId()).map(d -> d.getId()).orElse(null),
+                representantes.findByUsuario_Id(usuario.getId()).map(r -> r.getId()).orElse(null));
     }
 
     private String autoridad(String permiso) {
