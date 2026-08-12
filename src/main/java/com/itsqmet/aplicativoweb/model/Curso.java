@@ -50,11 +50,11 @@ public class Curso {
     private TipoOrganizacionPeriodo tipoOrganizacion;
 
     @NotNull(message = "El año lectivo es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "anio_lectivo_id", nullable = false)
     private AnioLectivo anioLectivo;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutor_id")
     @JsonIgnoreProperties({"rol"})
     private Docente tutor;

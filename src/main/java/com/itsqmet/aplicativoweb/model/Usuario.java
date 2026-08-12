@@ -41,7 +41,7 @@ public class Usuario {
     @Column(nullable = false)
     private String estado = "Activo";
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Rol rol;
 }

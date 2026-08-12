@@ -33,7 +33,7 @@ public class Mensaje {
     private String estado="Enviado";
 
     @NotNull(message = "El campo remitente es obligatorio")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"rol"})
     private Docente remitente;
 

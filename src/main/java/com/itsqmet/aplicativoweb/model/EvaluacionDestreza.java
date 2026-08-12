@@ -1,5 +1,6 @@
 package com.itsqmet.aplicativoweb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.itsqmet.aplicativoweb.enums.EscalaDestrezaInicial;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +26,8 @@ public class EvaluacionDestreza {
     private Long id;
 
     @NotNull(message = "El alumno es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"curso", "representanteRegistro"})
     private Alumno alumno;
 
     @NotBlank(message = "El ámbito de aprendizaje es obligatorio")
@@ -35,7 +37,8 @@ public class EvaluacionDestreza {
     private String destreza; // código + descripción del Currículo Nacional
 
     @NotNull(message = "El periodo académico es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"curso"})
     private PeriodoAcademico periodoAcademico;
 
     /**

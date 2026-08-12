@@ -58,14 +58,25 @@ public class Actividad {
 
     private boolean esProyectoInterdisciplinar;
 
+    /**
+     * CORREGIDO: sin "@JsonIgnoreProperties" cada Actividad/Nota serializada
+     * arrastraba el PeriodoAcademico completo, y este a su vez "curso"
+     * (-> anioLectivo, tutor -> rol -> permisos): el frontend nunca usa nada
+     * de ese grafo (solo lee "periodoAcademico.id" y, como mucho, "numero"/
+     * "cerrado"), pero Hibernate igual resolvía cada asociación LAZY con una
+     * consulta adicional al serializar. En listas de notas/actividades de
+     * una clase completa esto se traducía en decenas de consultas extra por
+     * fila y respuestas notablemente más lentas.
+     */
     @NotNull(message = "El periodo académico es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"curso"})
     private PeriodoAcademico periodoAcademico;
 
     @NotNull(message = "La fecha de la actividad es obligatoria")
     private LocalDate fecha;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "materia_curso_id", nullable = false)
     @JsonIgnoreProperties({"docente"})
     private MateriaCurso materiaCurso;

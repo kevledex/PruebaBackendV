@@ -23,15 +23,15 @@ public class EvaluacionComportamental {
     private Long id;
 
     @NotNull(message = "El alumno es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Alumno alumno;
 
     @NotNull(message = "El periodo académico es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private PeriodoAcademico periodoAcademico;
 
     @NotNull(message = "El docente es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Docente docente;
 
     @NotBlank(message = "La descripción cualitativa es obligatoria")

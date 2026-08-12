@@ -33,16 +33,16 @@ public class MateriaCurso {
     private Long id;
 
     @NotNull(message = "La materia es obligatoria")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "materia_id", nullable = false)
     private Materia materia;
 
     @NotNull(message = "El curso es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "curso_id", nullable = false)
     private Curso curso;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"rol"})
     private Docente docente; // nullable: se asigna luego vía DocenteService.asignarMaterias
 

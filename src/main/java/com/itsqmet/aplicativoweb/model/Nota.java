@@ -59,18 +59,19 @@ public class Nota {
     @PastOrPresent(message = "La fecha de registro no puede ser futura")
     private LocalDate fecha;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "alumno_id", nullable = false)
+    @JsonIgnoreProperties({"curso", "representanteRegistro"})
     private  Alumno alumno;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "actividad_id", nullable = false)
     @JsonIgnoreProperties({"materiaCurso"})
     private Actividad actividad;
 
     private boolean esNotaDeMejora;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nota_original_id")
     private Nota notaOriginal;
 

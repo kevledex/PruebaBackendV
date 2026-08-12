@@ -42,13 +42,13 @@ public class Asistencia {
     private String  observacion;
 
     @NotNull(message = "Debe seleccionar un alumno")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "alumno_id", nullable = false)
     @JsonIgnoreProperties({"representanteRegistro"})
     private Alumno alumno;
 
     @NotNull(message = "Debe selecionar una materia")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "materia_id", nullable = false)
     @JsonIgnoreProperties({"docente"})
     private Materia materia;

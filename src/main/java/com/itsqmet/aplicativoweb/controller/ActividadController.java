@@ -65,6 +65,7 @@ public class ActividadController {
             actividad.setPeriodoAcademico(actividadDetalles.getPeriodoAcademico());
             actividad.setFecha(actividadDetalles.getFecha());
             actividad.setMateriaCurso(actividadDetalles.getMateriaCurso());
+            actividad.setCategoriaInsumoMedia(actividadDetalles.getCategoriaInsumoMedia());
             Actividad actualizada = actividadService.guardarActividad(actividad);
             return ResponseEntity.ok(actualizada);
         }).orElse(ResponseEntity.notFound().build());

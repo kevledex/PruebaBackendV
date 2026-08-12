@@ -8,4 +8,5 @@ import java.util.List;
 public interface PeriodoAcademicoRepository extends JpaRepository<PeriodoAcademico, Long> {
     List<PeriodoAcademico> findByCursoIdOrderByNumeroAsc(Long cursoId);
     boolean existsByCursoId(Long cursoId);
+    boolean existsByIdAndCerradoTrue(Long id);
 }
