@@ -27,7 +27,7 @@ public class PeriodoAcademico {
     private Long id;
 
     @NotNull(message = "El curso es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Curso curso;
 
     @Min(value = 1, message = "El número de periodo debe ser al menos 1")

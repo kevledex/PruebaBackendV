@@ -83,4 +83,15 @@ public class PeriodoAcademicoService {
         periodo.setCerrado(true);
         return periodoAcademicoRepository.save(periodo);
     }
+
+    /**
+     * NUEVO: el Admin puede reabrir un periodo cerrado por error o para
+     * permitir una rectificación de calificaciones (Cap. 7 del Instructivo).
+     * Antes no existía forma de revertir "cerrarPeriodo".
+     */
+    public PeriodoAcademico abrirPeriodo(Long id) {
+        PeriodoAcademico periodo = obtenerPorId(id);
+        periodo.setCerrado(false);
+        return periodoAcademicoRepository.save(periodo);
+    }
 }

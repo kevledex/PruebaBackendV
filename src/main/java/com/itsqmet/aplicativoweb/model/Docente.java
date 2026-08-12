@@ -61,11 +61,11 @@ public class Docente {
     private String correo;
 
     @NotNull(message = "Debe seleccionar un rol")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"permisos"})
     private Rol rol;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", unique = true)
     @JsonIgnoreProperties({"rol"})
     private Usuario usuario;

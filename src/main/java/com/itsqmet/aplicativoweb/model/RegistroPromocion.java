@@ -28,18 +28,18 @@ public class RegistroPromocion {
     private Long id;
 
     @NotNull(message = "El alumno es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Alumno alumno;
 
     @NotNull(message = "El año lectivo es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private AnioLectivo anioLectivo;
 
     @NotNull(message = "El curso de origen es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Curso cursoOrigen;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Curso cursoDestino; // null mientras esté PENDIENTE o si el resultado es REPITE
 
     @NotNull

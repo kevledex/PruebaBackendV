@@ -49,7 +49,7 @@ public class Alumno {
     private LocalDate fechaNacimiento;
 
     @NotNull(message = "El curso es obligatorio")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "curso_id", nullable = false)
     private Curso curso;
 
@@ -67,7 +67,7 @@ public class Alumno {
     @Enumerated(EnumType.STRING)
     private TipoAdaptacion tipoAdaptacion; // null si no aplica
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"alumnos"})
     private Representante representanteRegistro;
 

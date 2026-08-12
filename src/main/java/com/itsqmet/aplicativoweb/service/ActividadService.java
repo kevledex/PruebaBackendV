@@ -5,6 +5,7 @@ import com.itsqmet.aplicativoweb.enums.TipoEvaluacion;
 import com.itsqmet.aplicativoweb.exception.OperacionNoPermitidaException;
 import com.itsqmet.aplicativoweb.model.Actividad;
 import com.itsqmet.aplicativoweb.repository.ActividadRepository;
+import com.itsqmet.aplicativoweb.repository.PeriodoAcademicoRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,9 +29,12 @@ import java.util.Optional;
 
 public class ActividadService {
     private final ActividadRepository actividadRepository;
+    private final PeriodoAcademicoRepository periodoAcademicoRepository;
 
-    public ActividadService(ActividadRepository actividadRepository) {
+    public ActividadService(ActividadRepository actividadRepository,
+                             PeriodoAcademicoRepository periodoAcademicoRepository) {
         this.actividadRepository = actividadRepository;
+        this.periodoAcademicoRepository = periodoAcademicoRepository;
     }
 
     public List<Actividad> obtenerTodas(Long materiaCursoId, Long periodoAcademicoId){
@@ -76,8 +80,33 @@ public class ActividadService {
         actividadRepository.deleteById(id);
     }
 
+    /**
+     * CORREGIDO: el frontend solo envía "{ periodoAcademico: { id } }" (sin
+     * el resto de campos), así que "actividad.getPeriodoAcademico()" traía
+     * un objeto parcial deserializado por Jackson con "cerrado" en su valor
+     * por defecto (false) SIN IMPORTAR el estado real en la base de datos.
+     * Como resultado, esta validación nunca bloqueaba nada: se podían crear
+     * o editar actividades/notas sobre un periodo ya cerrado. Se corrige
+     * consultando el estado real en la base de datos.
+     *
+     * CORREGIDO: una primera versión de este fix releía el PeriodoAcademico
+     * COMPLETO (findById) y lo dejaba enganchado en la actividad
+     * ("actividad.setPeriodoAcademico(periodoReal)"). Al guardar/serializar
+     * la actividad, Jackson recorría esa entidad ya completamente hidratada
+     * (curso -> anioLectivo/tutor -> rol -> permisos), y Hibernate iba
+     * resolviendo cada asociación LAZY con una consulta adicional: guardar
+     * una sola actividad pasaba de 1 consulta a decenas. Multiplicado por
+     * cada actividad y cada nota de una tabla real (Elemental/Media guardan
+     * en un bucle secuencial, una petición a la vez), el guardado de una
+     * clase completa podía tardar minutos y el botón "Guardar" parecía
+     * quedarse colgado para siempre. Se reemplaza por una consulta liviana
+     * que solo trae el booleano "cerrado" y no toca la actividad en absoluto.
+     */
     private void validarPeriodoAbierto(Actividad actividad) {
-        if (actividad.getPeriodoAcademico() != null && actividad.getPeriodoAcademico().isCerrado()) {
+        if (actividad.getPeriodoAcademico() == null || actividad.getPeriodoAcademico().getId() == null) {
+            return;
+        }
+        if (periodoAcademicoRepository.existsByIdAndCerradoTrue(actividad.getPeriodoAcademico().getId())) {
             throw new OperacionNoPermitidaException(
                     "El periodo académico ya está cerrado; no se pueden registrar más evaluaciones sobre él");
         }

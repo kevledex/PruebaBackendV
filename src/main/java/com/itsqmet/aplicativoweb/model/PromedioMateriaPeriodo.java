@@ -23,15 +23,15 @@ public class PromedioMateriaPeriodo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "alumno_id", nullable = false)
     private Alumno alumno;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "materia_curso_id", nullable = false)
     private MateriaCurso materiaCurso;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "periodo_academico_id", nullable = false)
     private PeriodoAcademico periodoAcademico;
 

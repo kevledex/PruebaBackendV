@@ -71,6 +71,19 @@ public class CursoController {
         return periodoAcademicoService.generarPeriodos(id);
     }
 
+    // El Admin controla manualmente el estado de cada periodo académico: al
+    // cerrarlo, ActividadService deja de aceptar nuevas actividades/notas
+    // sobre él; al reabrirlo, vuelve a permitirlas.
+    @PutMapping("/{cursoId}/periodos/{periodoId}/cerrar")
+    public PeriodoAcademico cerrarPeriodo(@PathVariable Long cursoId, @PathVariable Long periodoId) {
+        return periodoAcademicoService.cerrarPeriodo(periodoId);
+    }
+
+    @PutMapping("/{cursoId}/periodos/{periodoId}/abrir")
+    public PeriodoAcademico abrirPeriodo(@PathVariable Long cursoId, @PathVariable Long periodoId) {
+        return periodoAcademicoService.abrirPeriodo(periodoId);
+    }
+
     @GetMapping("/{id}/materias")
     public List<MateriaCurso> materias(@PathVariable Long id) {
         return materiaCursoService.listarPorCurso(id);
